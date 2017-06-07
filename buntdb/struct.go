@@ -8,13 +8,15 @@ import (
 	"time"
 )
 
+// Post type is a struct of the contents of a post
 type Post struct {
-	Id   string
+	ID   string
 	Date string
 	Name string
 }
 
-type Data []Post
+// Posts type is a slice of Post structs
+type Posts []Post
 
 func getField(p Post, field string) string {
 	r := reflect.ValueOf(p)
@@ -22,14 +24,15 @@ func getField(p Post, field string) string {
 	return f.String()
 }
 
-func (d Data) Sort(field string, asc bool) Data {
-	sort.Slice(d, func(i, j int) bool {
+// Sort method for the
+func (p Posts) Sort(field string, asc bool) Posts {
+	sort.Slice(p, func(i, j int) bool {
 		if asc {
-			return getField(d[i], field) < getField(d[j], field)
+			return getField(p[i], field) < getField(p[j], field)
 		}
-		return getField(d[i], field) > getField(d[j], field)
+		return getField(p[i], field) > getField(p[j], field)
 	})
-	return d
+	return p
 }
 
 func main() {
@@ -49,7 +52,7 @@ func main() {
 		return
 	}
 
-	var data Data
+	var data Posts
 
 	ok := json.Unmarshal(b, &data)
 	if ok != nil {
@@ -62,8 +65,8 @@ func main() {
 	// fmt.Println("Name:", data.Sort("Name", true))
 	// fmt.Println("Date:", data.Sort("Date", true))
 	// fmt.Println("Id:", data.Sort("Id", true))
-	fmt.Println("Id:", data.Sort("Id", false))
-	fmt.Println("Id:", data.Sort("Id", true))
+	fmt.Println("ID:", data.Sort("ID", false))
+	fmt.Println("ID:", data.Sort("ID", true))
 
 	elapsed := time.Since(now)
 	fmt.Println(elapsed)
