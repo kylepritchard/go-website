@@ -51,6 +51,8 @@ func main() {
 		fmt.Printf("Error: %s", err)
 		return
 	}
+	
+	fmt.Println("Marshalled", b)
 
 	var data Posts
 

@@ -10,26 +10,24 @@ import (
 	"github.com/urfave/negroni"
 )
 
-func index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	tpl, _ := template.ParseFiles("templates/index.gohtml")
-	tpl.Execute(w, nil)
-
-}
-
 func main() {
-
+	
+	//tmpl = template.Must(template.ParseFiles("templates/index.gohtml"))
+	
 	var port = "8000"
-	// fmt.Print("Choose a port for server: ")
-	// fmt.Scan(&port)
-
 	mux := httprouter.New()
 	mux.GET("/", index)
 
-	n := negroni.Classic() // Includes some default middlewares
-	// n.Use(negroni.NewLogger())
+	n := negroni.Classic() // Log & File Server
 	n.UseHandler(mux)
 
 	portString := strings.Join([]string{":", port}, "")
 	fmt.Println("Starting server listening on port", port)
 	http.ListenAndServe(portString, n)
+}
+
+func index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	tpl := template.Must(template.ParseFiles("templates/index.gohtml"))
+	tpl.Execute(w, nil)
+
 }
