@@ -1,12 +1,138 @@
 <html>
 
 <head>
+
     <link rel="icon" type="image/png" sizes="120x120" href="favicon.png">
     <link rel="stylesheet" href="style.css">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        .grid-sizer {
+            width: 25%
+        }
+
+        .item:nth-child(3n+2) {
+            width: 50%
+        }
+
+        .item {
+            width: 25%;
+            height: 100px;
+            overflow: hidden
+        }
+
+        .bg {
+            min-width: 100%;
+            min-height: 100%;
+            display: block;
+            background-repeat: no-repeat !important;
+            background-size: cover !important;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .item:hover .bg {
+            transform: scale3d(1.1, 1.1, 1.1);
+        }
+    </style>
+
+    <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+
 </head>
 
 <body>
-    <h1>Template served by Go</h1>
+
+
+    <div class="container">
+
+        <div class="grid">
+            <div class="grid-sizer"></div>
+            <div class="item" style="background: red">
+                <div class="bg"></div>
+            </div>
+            <div class="item" style="background: blue">
+                <div class="bg"></div>
+            </div>
+            <div class="item" style="background: green">
+                <div class="bg"></div>
+            </div>
+            <div class="item" style="background: red">
+                <div class="bg"></div>
+            </div>
+            <div class="item" style="background: blue">
+                <div class="bg"></div>
+            </div>
+            <div class="item" style="background: green">
+                <div class="bg"></div>
+            </div>
+            <div class="item" style="background: red">
+                <div class="bg"></div>
+            </div>
+            <div class="item" style="background: blue">
+                <div class="bg"></div>
+            </div>
+            <div class="item" style="background: red">
+                <div class="bg"></div>
+            </div>
+            <div class="item" style="background: green">
+                <div class="bg"></div>
+            </div>
+            <div class="item" style="background: red">
+                <div class="bg"></div>
+            </div>
+            <div class="item" style="background: green">
+                <div class="bg"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        //Array.from(document.body.querySelector('.item')).forEach(a => a.style.height = a.style.width);
+
+        function setHeight() {
+            var elements = document.body.querySelectorAll('.item');
+
+            [].forEach.call(elements, function (el) {
+                console.log(el)
+                el.style.height = el.offsetWidth
+                // el.innerHTML = "foo";
+            });
+        }
+
+        setHeight()
+
+        // window.addEventListener('load', function (event) {
+        //     setHeight()
+        // });
+
+        function setBG() {
+            var elements = document.body.querySelectorAll('.bg');
+
+            [].forEach.call(elements, function (el) {
+                el.style.backgroundImage = "url(https://unsplash.it/" + el.offsetWidth + "/?random"
+                // el.innerHTML = "foo";
+            });
+        }
+
+        setBG()
+
+        window.addEventListener('resize', function (event) {
+            setHeight()
+        });
+
+        // window.getComputedStyle(document.getElementById('divFoo'),null).width)
+
+        var elem = document.querySelector('.grid');
+        var msnry = new Masonry(elem, {
+            // options
+            itemSelector: '.item',
+            columnWidth: '.grid-sizer',
+
+        });
+    </script>
 </body>
 
 </html>
