@@ -11,10 +11,10 @@ import (
 )
 
 func main() {
-	
+
 	//tmpl = template.Must(template.ParseFiles("templates/index.gohtml"))
-	
-	var port = "8000"
+
+	var port = "8001"
 	mux := httprouter.New()
 	mux.GET("/", index)
 

@@ -1,11 +1,14 @@
 <html>
 
 <head>
-
+    <link href="https://fonts.googleapis.com/css?family=Titillium+Web|Ubuntu" rel="stylesheet">
     <style>
         body {
             margin: 0;
             padding: 0;
+            background: #252323;
+            /*font-family: 'Ubuntu', sans-serif;*/
+            font-family: 'Titillium Web', sans-serif;
         }
 
         .grid-sizer {
@@ -13,26 +16,74 @@
         }
 
         .item:nth-child(3n+2) {
-            width: 50%
+            width: 50%;
+            font-size: 4vw;
         }
 
         .item {
             width: 25%;
             height: 100px;
-            overflow: hidden
+            font-size: 3vw;
+            overflow: hidden;
         }
 
-        .bg {
+        .item__bg {
             min-width: 100%;
             min-height: 100%;
             display: block;
             background-repeat: no-repeat !important;
             background-size: cover !important;
-            transition: all 0.2s ease-in-out;
+            transition: all 1s ease-in-out;
         }
 
-        .item:hover .bg {
+        .item:hover .item__bg {
             transform: scale3d(1.1, 1.1, 1.1);
+        }
+
+        .item__content {
+            position: relative;
+            z-index: 2;
+            float: left;
+            height: 100%;
+            width: 100%;
+            color: white;
+        }
+
+        .item__content__overlay {
+            position: relative;
+            z-index: 1;
+            float: left;
+            height: 100%;
+            width: 100%;
+            color: white;
+            background-image: linear-gradient(to top, #000 0%, transparent 60%);
+            /*background-image: linear-gradient(to top, #141618 0%, transparent 50%);*/
+        }
+
+        .item__content__title {
+            position: absolute;
+            font-family: 'Ubuntu', sans-serif;
+            bottom: 5%;
+            left: 5%;
+            right: 5%;
+            z-index: 2;
+        }
+
+        .item__content__title p {
+            font-family: 'Titillium Web', sans-serif;
+            font-size: 1.5vw;
+            margin: 0;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale3d(0.2, 0.2, 0.2)
+            }
+            to {
+                opacity: 1;
+                transform: scale3d(1, 1, 1)
+            }
         }
     </style>
 
@@ -48,32 +99,82 @@
         <div class="grid">
             <div class="grid-sizer"></div>
             <div class="item">
-                <div class="bg"></div>
+                <div class="item__content">
+                    <div class="item__content__overlay"></div>
+                    <div class="item__content__title">
+                        <p>Bla Bla Bla</p> Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet
+                    </div>
+                </div>
+                <div class="item__bg"></div>
             </div>
             <div class="item">
-                <div class="bg"></div>
+                <div class="item__content">
+                    <div class="item__content__overlay"></div>
+                    <div class="item__content__title">
+                        <p>Bla Bla Bla</p> Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet
+                    </div>
+                </div>
+                <div class="item__bg"></div>
             </div>
             <div class="item">
-                <div class="bg"></div>
+                <div class="item__content">
+                    <div class="item__content__overlay"></div>
+                    <div class="item__content__title">
+                        <p>Bla Bla Bla</p> Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet
+                    </div>
+                </div>
+                <div class="item__bg"></div>
             </div>
             <div class="item">
-                <div class="bg"></div>
+                <div class="item__content">
+                    <div class="item__content__overlay"></div>
+                    <div class="item__content__title">
+                        <p>Bla Bla Bla</p> Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet
+                    </div>
+                </div>
+                <div class="item__bg"></div>
             </div>
             <div class="item">
-                <div class="bg"></div>
+                <div class="item__content">
+                    <div class="item__content__overlay"></div>
+                    <div class="item__content__title">
+                        <p>Bla Bla Bla</p> Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet
+                    </div>
+                </div>
+                <div class="item__bg"></div>
             </div>
             <div class="item">
-                <div class="bg"></div>
+                <div class="item__content">
+                    <div class="item__content__overlay"></div>
+                    <div class="item__content__title">
+                        <p>Bla Bla Bla</p> Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet
+                    </div>
+                </div>
+                <div class="item__bg"></div>
             </div>
             <div class="item">
-                <div class="bg"></div>
+                <div class="item__content">
+                    <div class="item__content__overlay"></div>
+                    <div class="item__content__title">
+                        <p>Bla Bla Bla</p> Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet
+                    </div>
+                </div>
+                <div class="item__bg"></div>
             </div>
             <div class="item">
-                <div class="bg"></div>
+                <div class="item__content">
+                    <div class="item__content__overlay"></div>
+                    <div class="item__content__title">
+                        <p>Bla Bla Bla</p> Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet
+                    </div>
+                </div>
+                <div class="item__bg"></div>
             </div>
-
         </div>
     </div>
+
+    <!--Import the GSAP TweenMax code-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.18.1/TweenMax.min.js"></script>
 
     <script>
         //Array.from(document.body.querySelector('.item')).forEach(a => a.style.height = a.style.width);
@@ -81,14 +182,29 @@
         function setHeight() {
             var elements = document.body.querySelectorAll('.item');
 
-            [].forEach.call(elements, function (el) {
+            [].forEach.call(elements, function (el, idx) {
                 el.style.height = el.offsetWidth
-                // el.innerHTML = "foo";
+                // var delaytime = (idx * 250) / 1000
+                // var duration = 800 / 1000
+                // // el.style.animation = "fadeIn " + duration + "s " + delaytime + "s ease-in-out"
+                // TweenLite.fromTo(el, duration, {
+                //     css: {
+                //         scale: 0,
+                //         // opacity: 0
+                //     }
+                // }, {
+                //     css: {
+                //         // opacity: 1,
+                //         scale: 1
+                //     },
+                //     ease: Sine.easeOut,
+                //     delay: delaytime
+                // });
             });
         }
 
         function setBG() {
-            var elements = document.body.querySelectorAll('.bg');
+            var elements = document.body.querySelectorAll('.item__bg');
 
             [].forEach.call(elements, function (el) {
                 if (el.offsetWidth <= 450) {
@@ -101,9 +217,33 @@
             });
         }
 
+        function animateGridOnOpen() {
+            var elements = document.body.querySelectorAll('.item');
+
+            [].forEach.call(elements, function (el, idx) {
+                var delaytime = (idx * 250) / 1000
+                var duration = 800 / 1000
+                // el.style.animation = "fadeIn " + duration + "s " + delaytime + "s ease-in-out"
+                TweenLite.fromTo(el, duration, {
+                    css: {
+                        scale: 0,
+                        // opacity: 0
+                    }
+                }, {
+                    css: {
+                        // opacity: 1,
+                        scale: 1
+                    },
+                    ease: Sine.easeOut,
+                    delay: delaytime
+                });
+            });
+        }
+
         function init() {
             setHeight();
             setBG();
+            animateGridOnOpen();
         }
 
         init()
@@ -117,7 +257,6 @@
             // options
             itemSelector: '.item',
             columnWidth: '.grid-sizer',
-
         });
     </script>
 </body>
