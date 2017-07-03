@@ -237,13 +237,55 @@
                     ease: Sine.easeOut,
                     delay: delaytime
                 });
+
+
             });
         }
+
+
+
+        function addClickListener() {
+            var elements = document.body.querySelectorAll('.item');
+
+            [].forEach.call(elements, function (el, idx) {
+                setTimeout(function () {
+                    el.addEventListener('click', function () {
+
+                        var bodyRect = document.body.getBoundingClientRect(),
+                            elemRect = el.getBoundingClientRect(),
+                            offset = elemRect.top - bodyRect.top;
+
+                        console.log(idx, elemRect)
+                        // TweenLite.to(el, 0.5, {
+                        //     x: 20,
+                        //     y: 20,
+                        // })
+
+                        // TweenLite.fromTo(el, 1, {
+                        //     css: {
+                        //         scale: 1,
+                        //         // opacity: 0
+                        //     }
+                        // }, {
+                        //     css: {
+                        //         // opacity: 1,
+                        //         scale: 25
+                        //     },
+                        //     ease: Sine.easeOut
+                        // });
+                    })
+                }, 1000)
+
+                // el.style.animation = "fadeIn " + duration + "s " + delaytime + "s ease-in-out"
+
+            })
+        };
 
         function init() {
             setHeight();
             setBG();
             animateGridOnOpen();
+            addClickListener();
         }
 
         init()

@@ -1,0 +1,88 @@
+package main
+
+import (
+	"bytes"
+	"fmt"
+	"time"
+	"github.com/davecgh/go-xdr/xdr2"
+	"encoding/json"
+	"github.com/vmihailenco/msgpack"
+)
+
+func main() {
+
+	type Comment struct {
+		Comment string
+	}
+	// Hypothetical image header format.
+	type Post struct {
+		Content   	string
+		Title     	string
+		PostDate 	time.Time
+		Comments	[]string
+	}
+
+	// Sample image header data.
+	// h := ImageHeader{[3]byte{0xAB, 0xCD, 0xEF}, 2, true, 10}
+	h := Post{
+		"Lorem Ipsum bla bla bla bla",
+		"Post Title",
+		time.Now(),
+		[]string{"Comment 1","Comment 2",},
+	}
+
+	// Use marshal to automatically determine the appropriate underlying XDR
+	// types and encode.
+	var w bytes.Buffer
+	bytesWritten, err := xdr.Marshal(&w, &h)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	encodedData := w.Bytes()
+	fmt.Println("bytes written:", bytesWritten)
+	fmt.Println("encoded data:", encodedData)
+
+	// var x bytes.Buffer
+	jsonWritten, err := json.Marshal(&h)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// encodedJson := x.Bytes()
+	fmt.Println("json bytes written:", len(jsonWritten))
+	fmt.Println("json", string(jsonWritten))
+	fmt.Println("json encoded data:", jsonWritten)
+
+
+	b, err := msgpack.Marshal(&h)
+	if err != nil {
+		panic(err)
+	}
+
+	// encodedJson := x.Bytes()
+	fmt.Println("msgpack bytes written:", len(b))
+	fmt.Println("msgpack encoded data:", b)
+
+
+	var post Post
+	err = msgpack.Unmarshal(b, &post)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Message Pack Unmarshall -", post)
+
+
+	var i Post
+	bytesRead, err := xdr.Unmarshal(bytes.NewReader(encodedData), &i)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("bytes read:", bytesRead)
+	fmt.Printf("i: %v", i)
+
+}
