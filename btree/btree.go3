@@ -1,0 +1,57 @@
+package main
+
+import (
+	"encoding/gob"
+	"fmt"
+	"log"
+
+	"bytes"
+
+	"github.com/tidwall/btree"
+)
+
+type DB struct {
+	Tree *btree.BTree
+}
+
+type Item struct {
+	Key, Val string
+}
+
+func (i1 *Item) Less(item btree.Item, ctx interface{}) bool {
+	i2 := item.(*Item)
+	switch tag := ctx.(type) {
+	case string:
+		if tag == "vals" {
+			if i1.Val < i2.Val {
+				return true
+			} else if i1.Val > i2.Val {
+				return false
+			}
+			// Both vals are equal so we should fall though
+			// and let the key comparison take over.
+		}
+	}
+	return i1.Key < i2.Key
+}
+
+func main() {
+
+	var db DB
+
+	db.Tree = btree.New(16, "keys")
+
+	for i := 0; i < 1000; i++ {
+		db.Tree.ReplaceOrInsert(&Item{string(i), "value"})
+	}
+
+	var network bytes.Buffer // Stand-in for the network.
+
+	// Create an encoder and send a value.
+	enc := gob.NewEncoder(&network)
+	err := enc.Encode(db)
+	if err != nil {
+		log.Fatal("encode:", err)
+	}
+	fmt.Print(network)
+}

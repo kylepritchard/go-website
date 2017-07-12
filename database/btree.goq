@@ -1,0 +1,74 @@
+package main
+
+import (
+	"fmt"
+
+	"github.com/tidwall/btree"
+)
+
+type Item struct {
+	key, val string
+}
+
+func (i1 *Item) Less(item btree.Item, ctx interface{}) bool {
+	i2 := item.(*Item)
+	switch tag := ctx.(type) {
+	case string:
+		if tag == "vals" {
+			if i1.val < i2.val {
+				return true
+			} else if i1.val > i2.val {
+				return false
+			}
+			// Both vals are equal so we should fall though
+			// and let the key comparison take over.
+		}
+	}
+	return i1.key < i2.key
+}
+
+func main() {
+
+	// Create a tree for keys and a tree for values.
+	// The "keys" tree will be sorted on the Keys field.
+	// The "values" tree will be sorted on the Values field.
+	keys := btree.New(16, "keys")
+	vals := btree.New(16, "vals")
+
+	// Create some items.
+	users := []*Item{
+		&Item{key: "user:1", val: "Jane"},
+		&Item{key: "user:2", val: "Andy"},
+		&Item{key: "user:3", val: "Steve"},
+		&Item{key: "user:4", val: "Andrea"},
+		&Item{key: "user:5", val: "Janet"},
+		&Item{key: "user:6", val: "Andy"},
+	}
+
+	// Insert each user into both trees
+	for _, user := range users {
+		keys.ReplaceOrInsert(user)
+		vals.ReplaceOrInsert(user)
+	}
+
+	// Iterate over each user in the key tree
+	keys.Ascend(func(item btree.Item) bool {
+		kvi := item.(*Item)
+		fmt.Printf("%s %s\n", kvi.key, kvi.val)
+		return true
+	})
+
+	fmt.Printf("\n")
+	// Iterate over each user in the val tree
+	vals.Ascend(func(item btree.Item) bool {
+		kvi := item.(*Item)
+		fmt.Printf("%s %s\n", kvi.key, kvi.val)
+		return true
+	})
+
+	fmt.Printf("\n")
+	fmt.Println(vals)
+	item := &Item{val: "user:5"}
+	itemfound := vals.Get(item)
+	fmt.Println(itemfound)
+}

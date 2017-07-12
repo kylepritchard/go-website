@@ -1,0 +1,229 @@
+package main
+
+import "fmt"
+
+type Node struct {
+	key   int
+	value int
+	level int
+	left  *Node
+	right *Node
+}
+
+type Tree struct {
+	root *Node
+	path []*Node
+}
+
+var Bottom Node
+
+func init() {
+	Bottom.level = 0
+	Bottom.left = &Bottom
+	Bottom.right = &Bottom
+}
+
+func newNode(key, value int) *Node {
+	// var node Node
+	node := &Node{key, value, 1, &Bottom, &Bottom}
+	return node
+}
+
+func compareFn(a, b int) int {
+	var result int
+	switch {
+	case a < b:
+		result = -1
+
+	case a > b:
+		result = 1
+
+	case a == b:
+		result = 0
+	}
+	return result
+}
+
+func skew(n *Node) *Node {
+	if n.left.level == n.level {
+		var temp *Node
+		temp = n
+		n = n.left
+		temp.left = n.right
+		n.right = temp
+	}
+	return n
+}
+
+func split(n *Node) *Node {
+	if n.right.right.level == n.level {
+		var temp *Node
+		temp = n
+		n = n.right
+		temp.right = n.left
+		n.left = temp
+		n.level++
+	}
+	return n
+}
+
+func (t *Tree) insert(key, value int) {
+
+	var node = t.root
+	// var path = t.path
+
+	fmt.Println("Insert", node)
+
+	if t.root == nil {
+		t.root = newNode(key, value)
+		return
+	}
+	// if key == node.key {
+	// 	return
+	// }
+	// if key < node.key {
+	// 	t.root.left = newNode(key, value)
+	// } else {
+	// 	t.root.right = newNode(key, value)
+	// }
+
+	k := 0
+
+	for {
+		// var c int
+		c := compareFn(key, node.key)
+		fmt.Println(c)
+		if c == 0 {
+			return
+		}
+
+		t.path[k] = t.root
+		k++
+
+		if c == -1 {
+			if t.root.left == &Bottom {
+				t.root.left = newNode(key, value)
+				return
+			}
+			// t.root = t.root.left
+
+		} else {
+			if t.root.right == &Bottom {
+				t.root.right = newNode(key, value)
+				return
+			}
+			// node = node.right
+		}
+	}
+
+	// this._go fmt aajs.go
+	// rebalance(path, k)
+
+	return
+}
+
+// function bbtree(compareFn) {
+//     return new BBTree(compareFn);
+// }
+
+// function BBTree(compareFn) {
+//     this._compare = compareFn || defaultCompare;
+//     this._path = [];
+// }
+
+// BBTree.prototype = {
+
+//     find: function (key) {
+//         var node = this.root,
+//             compare = this._compare;
+
+//         while (node !== bottom) {
+//             var c = compare(key, node.key);
+//             if (c === 0) return node;
+//             node = c < 0 ? node.left : node.right;
+//         }
+//         return null;
+//     },
+
+//     insert: function (key, value) {
+
+//         var compare = this._compare,
+//             node = this.root,
+//             path = this._path;
+
+//         if (!node) {
+//             this.root = newNode(key, value);
+//             return this;
+//         }
+
+//         var k = 0;
+
+//         while (true) {
+//             var c = compare(key, node.key);
+//             if (!c) return this;
+
+//             path[k] = node;
+//             k++;
+
+//             if (c < 0) {
+//                 if (node.left === bottom) { node.left = newNode(key, value); break; }
+//                 node = node.left;
+
+//             } else {
+//                 if (node.right === bottom) { node.right = newNode(key, value); break; }
+//                 node = node.right;
+//             }
+//         }
+
+//         this._rebalance(path, k);
+
+//         return this;
+//     },
+
+//     _rebalance: function (path, k) {
+
+//         var rotated, node, parent, updated, m = 0;
+
+//         for (var i = k - 1; i >= 0; i--) {
+//             rotated = node = path[i];
+
+//             if (node.level === node.left.level && node.level === node.right.level) {
+//                 updated = true;
+//                 node.level++;
+
+//             } else {
+//                 rotated = skew(node);
+//                 rotated = split(rotated);
+//             }
+
+//             if (rotated !== node) {
+//                 updated = true;
+//                 if (i) {
+//                     parent = path[i - 1];
+//                     if (parent.left === node) parent.left = rotated;
+//                     else parent.right = rotated;
+
+//                 } else this.root = rotated;
+//             }
+//             if (!updated) m++;
+//             if (m === 2) break;
+//         }
+//     }
+// };
+
+// function defaultCompare(a, b) {
+//     return a < b ? -1 : a > b ? 1 : 0;
+// }
+
+func main() {
+	tr := &Tree{}
+	fmt.Println("Tree Start", tr)
+
+	tr.insert(1, 100)
+
+	tr.insert(2, 200)
+	tr.insert(3, 300)
+	tr.insert(4, 400)
+
+	fmt.Println("Tree End:", tr.root)
+}

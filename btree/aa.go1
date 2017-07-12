@@ -1,0 +1,430 @@
+package main
+
+import (
+	"fmt"
+	"testing"
+	"time"
+)
+
+type Node struct {
+	level int
+	left  *Node
+	right *Node
+	key   int
+	value string
+}
+
+var NilNode Node
+
+type Tree struct {
+	root *Node
+}
+
+//Need to make a node instead of changing a referenced node
+func NewNode(key int, value string) *Node {
+	// var node *Node
+	// node :=
+	return &Node{1, &NilNode, &NilNode, key, value}
+}
+
+//Skew function
+func Skew(n *Node) *Node {
+	if n.level != 0 && n.left.level == n.level {
+		// fmt.Println("Skew")
+		var save = n.left
+		n.left = save.right
+		save.right = n
+		n = save
+	}
+	return n
+}
+
+func Split(n *Node) *Node {
+	// time.Sleep(time.Second * 2)
+	if n.level != 0 && n.right.right.level == n.level {
+		// fmt.Println("2 horizontal right links - splitting")
+		// var save = n
+		// n = n.right
+		// save.right = n.left
+		// n.left = save
+		// n.level++
+		// n.right = Split(n.right)
+
+		var save = n.right
+		n.right = save.left
+		save.left = n
+		n = save
+		n.level++
+	}
+	return n
+}
+
+func (n *Node) insert(key int, value string) *Node {
+	// fmt.Println("Insert:", key, n)
+	if n == nil || n.level == 0 {
+		// fmt.Println("make a new node")
+		// n = &Node{1, &NilNode, &NilNode, key, value}
+		n := NewNode(key, value)
+		// duration := time.Second * 2
+		// time.Sleep(duration)
+		return n
+	}
+	// fmt.Println("Not a new node")
+	if n.value < value {
+		// fmt.Println("right insert")
+		// duration := time.Second * 2
+		// time.Sleep(duration)
+		n.right = n.right.insert(key, value)
+		// fmt.Println("right inserted:", n)
+	} else {
+		// fmt.Println("left insert")
+		// duration := time.Second * 2
+		// time.Sleep(duration)
+		n.left = n.left.insert(key, value)
+		// fmt.Println("left insert:", n)
+	}
+	// fmt.Println("Skew & Split")
+	n = Skew(n)
+	n = Split(n)
+	return n
+	// return Split(Skew(n))
+}
+
+func (t *Tree) Insert(key int, value string) {
+	t.root = t.root.insert(key, value)
+	// fmt.Println("Tree Root ===>", t.root)
+	// fmt.Println("Tree root left ==>", t.root.left)
+	// fmt.Println("Tree root right ==>", t.root.right)
+	// fmt.Println("Tree root left left==>", t.root.left.left)
+	// fmt.Println("Tree root left right==>", t.root.left.right)
+	// fmt.Println("Tree root right left==>", t.root.right.left)
+	// fmt.Println("Tree root right right==>", t.root.left.right)
+	// fmt.Println("Tree root left right left==>", t.root.left.right.left)
+	// fmt.Println("Tree root left right right==>", t.root.right.right.right)
+	// fmt.Println("Tree root right right left==>", t.root.right.right.left)
+	// fmt.Println("Tree root right right right==>", t.root.right.right.right)
+}
+
+// function remove(root, key) {
+//     var heir;
+//     if(root !== TreeNode.nil) {
+//         if(root.key == key) {
+//             if(root.left !== TreeNode.nil && root.right !== TreeNode.nil) {
+//                 heir = root.left;
+//                 while(heir.right !== TreeNode.nil) {
+//                     heir = heir.right;
+//                 }
+//                 root.key = heir.key;
+//                 root.value = heir.value;
+//                 root.left = remove(root.left, root.key);
+//             } else if(root.left === TreeNode.nil) {
+//                 root = root.right;
+//             } else {
+//                 root = root.left;
+//             }
+//         } else if(root.key < key) {
+//             root.right = remove(root.right, key);
+//         } else {
+//             root.left = remove(root.left, key);
+//         }
+//     }
+
+//     if (root.left.level  < (root.level - 1) ||
+//         root.right.level < (root.level - 1)
+//     ){
+//         root.level -= 1;
+//         if(root.right.level > root.level) {
+//             root.right.level = root.level;
+//         }
+//         root = split(skew(root));
+//     }
+
+//     return root;
+// }
+
+// function walk(root, callback, level) {
+//     if(root === TreeNode.nil) {
+//         return;
+//     }
+//     walk(root.left, callback, level + 1);
+//     callback.call(root, root, level);
+//     walk(root.right, callback, level + 1);
+//     return;
+// }
+
+// container class
+// func Tree() {
+// 	root = &Node{0, }
+// }
+
+// Tree.prototype.insert = function(key, value) {
+//     this.root = insert(this.root, key, value);
+// };
+
+// Tree.prototype.remove = function(key, value) {
+//     this.root = remove(this.root, key, value);
+// };
+
+// Tree.prototype.forEach = function(callback) {
+//     var index = 0;
+//     var internalCallback = function(root, level) {
+//         callback.call(root, root, index++, level);
+//     }
+//     walk(this.root, internalCallback, 0);
+// };
+
+// // Interface for outside world
+// window.Tree = Tree;
+// window.TreeNode = TreeNode;
+func init() {
+	// Initialise Nil Node
+	NilNode.level = 0
+	NilNode.left = &NilNode
+	NilNode.right = &NilNode
+	NilNode.key = 0
+	NilNode.value = ""
+}
+
+// func (t *Tree) Traverse(n *Node, f func(*Node)) {
+// 	if n == nil {
+// 		return
+// 	}
+// 	t.Traverse(n.left, f)
+// 	f(n)
+// 	t.Traverse(n.right, f)
+// }
+
+func (t *Tree) Find(key int) string {
+
+	n := t.root
+
+	for n.level != 0 {
+		if n.key == key {
+			return n.value
+		}
+		if n.key < key {
+			n = n.right
+		} else {
+			n = n.left
+		}
+	}
+
+	return ""
+}
+
+// insert func iterative
+
+type ItSlice []*Node
+
+func (n *Node) ItInsert(key int, value string) *Node {
+	if n == nil || n.level == 0 {
+		// fmt.Println("new tree")
+		n = NewNode(key, value)
+	} else {
+		// fmt.Println("")
+		// fmt.Println("")
+		// fmt.Println("not new tree --", key)
+		var save = n
+		// up := make([]*Node, 2)
+		var up []*Node
+		top := 0
+		dir := 0
+		// fmt.Println("Node.Value =", n.value, "Insert Value =", value)
+		for {
+			up = append(up, save)
+			if n.value < value {
+				// fmt.Println("right")
+				// fmt.Println(save.right.level)
+				dir = 1
+				if save.right.level == 0 {
+					// fmt.Println("break loop")
+					break
+				}
+				// fmt.Println(save, save.right)
+				save = save.right
+				// fmt.Println(save)
+			} else {
+				// fmt.Println("left")
+				dir = 0
+				if save.left.level == 0 {
+					break
+				}
+				save = save.left
+			}
+			top++
+		}
+
+		// fmt.Println(up)
+
+		if dir == 0 {
+			// fmt.Println("New Node left")
+			save.left = NewNode(key, value)
+		} else {
+			// fmt.Println("New Node right")
+			save.right = NewNode(key, value)
+		}
+
+		// fmt.Println("top:", top)
+
+		for top >= 0 {
+			if top != 0 {
+				if up[top-1].right == up[top] {
+					dir = 1
+				} else {
+					dir = 0
+				}
+			}
+			// fmt.Println("up[top] =", up[top], "top = ", top)
+			up[top] = Skew(up[top])
+			up[top] = Split(up[top])
+
+			if top != 0 {
+				if dir == 0 {
+					up[top-1].left = up[top]
+				} else {
+					up[top-1].right = up[top]
+				}
+			} else {
+				n = up[top]
+			}
+
+			top--
+		}
+	}
+	return n
+}
+
+type Trav struct {
+	tree *Tree /* Paired tree */
+	node *Node /* Current node */
+	top  int   /* Top of stack */
+	asc  bool
+}
+
+// Traversing
+
+func (t *Tree) MaxMin(max bool) (int, string) {
+
+	n := t.root
+	top := 0
+	var path []*Node
+
+	/* Build a path to work with */
+	if n != nil {
+		if max {
+			for n.right.level != 0 {
+				path = append(path, n)
+				n = n.right
+				top++
+			}
+		}
+		if !max {
+			for n.left.level != 0 {
+				path = append(path, n)
+				n = n.left
+				top++
+			}
+		}
+	}
+
+	return n.key, n.value
+
+}
+
+func Ascend(n *Node) {
+	if n.level == 0 {
+		return
+	}
+	Ascend(n.left)
+	fmt.Println(n.value)
+	Ascend(n.right)
+}
+
+func Descend(n *Node) {
+	if n.level == 0 {
+		return
+	}
+	Descend(n.right)
+	fmt.Println(n.key)
+	Descend(n.left)
+}
+
+func InorderTraversal(n *Node) []int {
+	var res []int
+
+	cur := n
+	for cur != &NilNode {
+		if cur.left == &NilNode {
+			res = append(res, cur.key)
+			cur = cur.right
+			continue
+		}
+
+		pre := cur.left
+		for pre.right != &NilNode && pre.right != cur {
+			pre = pre.right
+		}
+
+		if pre.right == &NilNode {
+			pre.right = cur
+			cur = cur.left
+		} else {
+			pre.right = &NilNode
+			res = append(res, cur.key)
+			cur = cur.right
+		}
+	}
+	return res
+}
+
+func main() {
+
+	tree := &Tree{}
+	// tree.root = &NilNode
+	// fmt.Println(tree.root)
+	// tree.Insert(0, "0")
+	// tree.Insert(1, "1")
+	// tree.Insert(2, "2")
+	// tree.Insert(3, "3")
+	// tree.Insert(4, "4")
+	// tree.Insert(5, "5")
+
+	letters := []string{"q", "w", "e", "r", "t", "y", "u", "i", "o", "p"}
+	timeStart := time.Now()
+	for i := 0; i < 10; i++ {
+		tree.Insert(i, letters[i])
+	}
+	fmt.Println("Tree Insertion done in:", time.Since(timeStart))
+
+	// timeStart = time.Now()
+	// str := tree.Find(4563252)
+	// fmt.Println("Tree Find:", str, "in: ", time.Since(timeStart))
+
+	// fmt.Println(tree.MaxMin(false))
+	// fmt.Println(tree.MaxMin(true))
+	// fmt.Println(Ascend(tree.root))
+	Ascend(tree.root)
+	// Descend(tree.root)
+
+	// fmt.Println(InorderTraversal(tree.root))
+
+}
+
+func BenchmarkInsert(b *testing.B) {
+	tree := &Tree{}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		tree.Insert(i, string(i))
+	}
+}
+
+func BenchmarkGet(b *testing.B) {
+	tree := &Tree{}
+	for i := 0; i < b.N; i++ {
+		tree.Insert(i, string(i))
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		tree.Find(i)
+	}
+}

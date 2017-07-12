@@ -1,0 +1,120 @@
+package main
+
+import (
+	"math/rand"
+	"reflect"
+	"sort"
+	"testing"
+
+	randomdata "github.com/Pallinder/go-randomdata"
+)
+
+type Post struct {
+	Title   string
+	Content string
+	Number  int
+}
+
+type Posts []Post
+
+func (slice Posts) Len() int {
+	return len(slice)
+}
+
+func (slice Posts) Swap(i, j int) {
+	slice[i], slice[j] = slice[j], slice[i]
+}
+
+func (slice Posts) Less(i, j int) bool {
+	return slice[i].Number < slice[j].Number
+}
+
+type PostsOrderedDynamic struct {
+	Field string
+	Int   bool
+	Posts
+}
+
+func getStringField(v *Post, field string) string {
+	r := reflect.ValueOf(v)
+	f := reflect.Indirect(r).FieldByName(field)
+	return f.String()
+}
+
+func getIntField(v *Post, field string) int {
+	r := reflect.ValueOf(v)
+	f := reflect.Indirect(r).FieldByName(field)
+	return int(f.Int())
+}
+
+func (p PostsOrderedDynamic) Less(i, j int) bool {
+	f := p.Field
+	if p.Int {
+		return getIntField(&p.Posts[i], f) < getIntField(&p.Posts[j], f)
+	}
+	return getStringField(&p.Posts[i], f) < getStringField(&p.Posts[j], f)
+
+	// return p.Posts[i].Number < p.Posts[j].Number
+}
+
+// func main() {
+
+// 	var posts Posts
+
+// 	for i := 0; i < 100; i++ {
+// 		post := Post{"title", randomdata.SillyName(), rand.Intn(1000)}
+// 		posts = append(posts, post)
+// 		sort.Sort(Posts(posts))
+// 	}
+// 	// postsClone := posts
+// 	// for i, p := range posts {
+// 	// 	fmt.Println(i, p.Number)
+// 	// }
+// 	timeStart := time.Now()
+// 	sort.Sort(Posts(posts))
+// 	fmt.Println(time.Since(timeStart))
+
+// 	// timeStart = time.Now()
+// 	// sort.Sort(PostsOrderedDynamic{"Number", true, posts})
+// 	// fmt.Println(time.Since(timeStart))
+// 	// for i, p := range posts {
+// 	// 	if i > 5 {
+// 	// 		return
+// 	// 	}
+// 	// 	fmt.Println(i, p.Number)
+// 	// }
+// }
+
+func buildSlice(srt bool, num int) Posts {
+	var posts Posts
+
+	for i := 0; i < num; i++ {
+		post := Post{"title", randomdata.SillyName(), rand.Intn(1000000)}
+		posts = append(posts, post)
+	}
+	if srt {
+		sort.Sort(Posts(posts))
+	}
+	return posts
+}
+
+func BenchmarkTestSortSliceStructUnSorted1000(b *testing.B) {
+	posts := buildSlice(false, 100)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		sort.Sort(Posts(posts))
+	}
+
+}
+
+func BenchmarkTestSortSliceStructSorted1000(b *testing.B) {
+	posts := buildSlice(true, 100)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		sort.Sort(Posts(posts))
+	}
+
+}
