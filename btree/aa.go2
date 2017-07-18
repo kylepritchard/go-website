@@ -3,23 +3,31 @@ package main
 import (
 	"fmt"
 	"testing"
+
 	"time"
 
 	randomdata "github.com/Pallinder/go-randomdata"
 )
 
+type Post struct {
+	Id       int
+	Title    string
+	Content  string
+	PostDate time.Time
+}
+
 type Node struct {
-	level int
-	left  *Node
-	right *Node
-	key   int
-	value string
+	Level int
+	Left  *Node
+	Right *Node
+	Key   int
+	Value string
 }
 
 var NilNode Node
 
 type Tree struct {
-	root *Node
+	Root *Node
 }
 
 //Need to make a node instead of changing a referenced node
@@ -31,63 +39,63 @@ func NewNode(key int, value string) *Node {
 
 //Skew function
 func Skew(n *Node) *Node {
-	if n.level != 0 && n.left.level == n.level {
+	if n.Level != 0 && n.Left.Level == n.Level {
 		// fmt.Println("Skew")
-		// var save = n.left
-		// n.left = save.right
-		// save.right = n
+		// var save = n.Left
+		// n.Left = save.Right
+		// save.Right = n
 		// n = save
 
 		//JS Skew
 		var temp = n
-		n = n.left
-		temp.left = n.right
-		n.right = temp
+		n = n.Left
+		temp.Left = n.Right
+		n.Right = temp
 	}
 	return n
 }
 
 // function split(node) {
-//     if (node.right.right.level === node.level) {
+//     if (node.Right.Right.Level === node.Level) {
 //         var temp = node;
-//         node = node.right;
-//         temp.right = node.left;
-//         node.left = temp;
-//         node.level++;
+//         node = node.Right;
+//         temp.Right = node.Left;
+//         node.Left = temp;
+//         node.Level++;
 //     }
 //     return node;
 // }
 
 func Split(n *Node) *Node {
 	// time.Sleep(time.Second * 2)
-	if n.level != 0 && n.right.right.level == n.level {
+	if n.Level != 0 && n.Right.Right.Level == n.Level {
 
-		// var save = n.right
-		// n.right = save.left
-		// save.left = n
+		// var save = n.Right
+		// n.Right = save.Left
+		// save.Left = n
 		// n = save
-		// n.level++
+		// n.Level++
 
 		//JS Split
 		var temp = n
-		n = n.right
-		temp.right = n.left
-		n.left = temp
-		n.level++
+		n = n.Right
+		temp.Right = n.Left
+		n.Left = temp
+		n.Level++
 
 	}
 	return n
 }
 
 func (n *Node) insert(key int, value string) *Node {
-	if n == nil || n.level == 0 {
+	if n == nil || n.Level == 0 {
 		return NewNode(key, value)
 	}
-	if n.value < value {
-		n.right = n.right.insert(key, value)
+	if n.Value < value {
+		n.Right = n.Right.insert(key, value)
 
 	} else {
-		n.left = n.left.insert(key, value)
+		n.Left = n.Left.insert(key, value)
 	}
 	n = Skew(n)
 	n = Split(n)
@@ -95,42 +103,42 @@ func (n *Node) insert(key int, value string) *Node {
 }
 
 func (t *Tree) Insert(key int, value string) {
-	t.root = t.root.ItInsert(key, value)
+	t.Root = t.Root.ItInsert(key, value)
 }
 
 func (t *Tree) Remove(value string) {
-	t.root = ItRemove(t.root, value)
+	t.Root = ItRemove(t.Root, value)
 }
 
 func remove(n *Node, value string) *Node {
 	fmt.Println("remove", value)
 	var heir *Node
 	if n != &NilNode {
-		if n.value == value {
-			if n.left != &NilNode && n.right != &NilNode {
-				heir = n.left
-				for heir.right != &NilNode {
-					heir = heir.right
+		if n.Value == value {
+			if n.Left != &NilNode && n.Right != &NilNode {
+				heir = n.Left
+				for heir.Right != &NilNode {
+					heir = heir.Right
 				}
-				n.key = heir.key
-				n.value = heir.value
-				n.left = remove(n.left, n.value)
-			} else if n.left == &NilNode {
-				n = n.right
+				n.Key = heir.Key
+				n.Value = heir.Value
+				n.Left = remove(n.Left, n.Value)
+			} else if n.Left == &NilNode {
+				n = n.Right
 			} else {
-				n = n.left
+				n = n.Left
 			}
-		} else if n.value < value {
-			n.right = remove(n.right, value)
+		} else if n.Value < value {
+			n.Right = remove(n.Right, value)
 		} else {
-			n.left = remove(n.left, value)
+			n.Left = remove(n.Left, value)
 		}
 	}
 
-	if n.left.level < (n.level-1) || n.right.level < (n.level-1) {
-		n.level--
-		if n.right.level > n.level {
-			n.right.level = n.level
+	if n.Left.Level < (n.Level-1) || n.Right.Level < (n.Level-1) {
+		n.Level--
+		if n.Right.Level > n.Level {
+			n.Right.Level = n.Level
 		}
 		n = Split(Skew(n))
 	}
@@ -165,17 +173,17 @@ func ItRemove(root *Node, value string) *Node {
 
 			if it == &NilNode {
 				return root
-			} else if value == it.value {
+			} else if value == it.Value {
 				fmt.Println("found")
 				break
 			}
 
-			if it.value < value {
+			if it.Value < value {
 				dir = 1
-				it = it.right
+				it = it.Right
 			} else {
 				dir = 0
-				it = it.left
+				it = it.Left
 			}
 
 			top++
@@ -183,78 +191,78 @@ func ItRemove(root *Node, value string) *Node {
 
 		fmt.Println(up)
 
-		if it.left == &NilNode || it.right == &NilNode {
-			if it.left == &NilNode {
+		if it.Left == &NilNode || it.Right == &NilNode {
+			if it.Left == &NilNode {
 				dir2 = 1
 			}
 
 			if top > 1 {
 				if dir == 0 {
 					if dir2 == 0 {
-						up[top-1].left = it.left
+						up[top-1].Left = it.Left
 					} else {
-						up[top-1].left = it.right
+						up[top-1].Left = it.Right
 					}
 				} else {
 					if dir2 == 0 {
-						up[top-1].right = it.left
+						up[top-1].Right = it.Left
 					} else {
-						up[top-1].right = it.right
+						up[top-1].Right = it.Right
 					}
 				}
 			} else {
-				root = it.right
+				root = it.Right
 			}
 		} else {
 
-			var heir = it.right
+			var heir = it.Right
 			var prev = it
 
 			for {
-				if heir.left == &NilNode {
+				if heir.Left == &NilNode {
 					break
 				}
 
 				up = append(up, prev)
 				heir = prev
-				heir = heir.left
+				heir = heir.Left
 				top++
 			}
 
-			it.value = heir.value
+			it.Value = heir.Value
 			if prev == it {
-				prev.right = heir.right
+				prev.Right = heir.Right
 			} else {
-				prev.left = heir.right
+				prev.Left = heir.Right
 			}
 		}
 
 		for i := top - 1; i >= 0; i-- {
 			if i != 0 {
-				if up[i-1].right == up[i] {
+				if up[i-1].Right == up[i] {
 					dir = 1
 				} else {
 					dir = 0
 				}
 			}
 
-			if up[i].left.level < up[i].level-1 || up[i].right.level < up[i].level-1 {
-				if up[i].right.level > up[i].level-1 {
-					up[i].right.level = up[i].level
+			if up[i].Left.Level < up[i].Level-1 || up[i].Right.Level < up[i].Level-1 {
+				if up[i].Right.Level > up[i].Level-1 {
+					up[i].Right.Level = up[i].Level
 				}
 
 				up[i] = Skew(up[i])
-				up[i].right = Skew(up[i].right)
-				up[i].right.right = Skew(up[i].right.right)
+				up[i].Right = Skew(up[i].Right)
+				up[i].Right.Right = Skew(up[i].Right.Right)
 				up[i] = Split(up[i])
-				up[i].right = Split(up[i].right)
+				up[i].Right = Split(up[i].Right)
 			}
 
 			if i != 0 {
 				if dir == 0 {
-					up[i-1].left = up[i]
+					up[i-1].Left = up[i]
 				} else {
-					up[i-1].right = up[i]
+					up[i-1].Right = up[i]
 				}
 			} else {
 				root = up[i]
@@ -267,25 +275,25 @@ func ItRemove(root *Node, value string) *Node {
 
 func init() {
 	// Initialise Nil Node
-	NilNode.level = 0
-	NilNode.left = &NilNode
-	NilNode.right = &NilNode
-	NilNode.key = 0
-	NilNode.value = ""
+	NilNode.Level = 0
+	NilNode.Left = &NilNode
+	NilNode.Right = &NilNode
+	NilNode.Key = 0
+	NilNode.Value = ""
 }
 
 func (t *Tree) Find(key int) string {
 
-	n := t.root
+	n := t.Root
 
-	for n.level != 0 {
-		if n.key == key {
-			return n.value
+	for n.Level != 0 {
+		if n.Key == key {
+			return n.Value
 		}
-		if n.key < key {
-			n = n.right
+		if n.Key < key {
+			n = n.Right
 		} else {
-			n = n.left
+			n = n.Left
 		}
 	}
 
@@ -294,7 +302,7 @@ func (t *Tree) Find(key int) string {
 
 func (n *Node) ItInsert(key int, value string) *Node {
 	// fmt.Println("insert")
-	if n == nil || n.level == 0 {
+	if n == nil || n.Level == 0 {
 		// fmt.Println("new tree")
 		n = NewNode(key, value)
 	} else {
@@ -306,39 +314,39 @@ func (n *Node) ItInsert(key int, value string) *Node {
 		for {
 			up = append(up, save)
 			// top++
-			if save.value < value {
+			if save.Value < value {
 				// fmt.Println("right")
-				// fmt.Println(save.right.level)
+				// fmt.Println(save.Right.Level)
 				dir = 1
-				if save.right == &NilNode {
+				if save.Right == &NilNode {
 					// fmt.Println("break loop")
 					break
 				}
-				// fmt.Println(save, save.right)
-				save = save.right
+				// fmt.Println(save, save.Right)
+				save = save.Right
 				// fmt.Println(save)
 			} else {
 				// fmt.Println("left")
 				dir = 0
-				if save.left == &NilNode {
+				if save.Left == &NilNode {
 					break
 				}
-				save = save.left
+				save = save.Left
 			}
 			top++
 		}
 
 		if dir == 0 {
 			// fmt.Println("New Node left")
-			save.left = NewNode(key, value)
+			save.Left = NewNode(key, value)
 		} else {
 			// fmt.Println("New Node right")
-			save.right = NewNode(key, value)
+			save.Right = NewNode(key, value)
 		}
 
 		for i := top - 1; i >= 0; i-- {
 			if i != 0 {
-				if up[i-1].right == up[i] {
+				if up[i-1].Right == up[i] {
 					dir = 1
 				} else {
 					dir = 0
@@ -350,9 +358,9 @@ func (n *Node) ItInsert(key int, value string) *Node {
 
 			if i != 0 {
 				if dir == 0 {
-					up[i-1].left = up[i]
+					up[i-1].Left = up[i]
 				} else {
-					up[i-1].right = up[i]
+					up[i-1].Right = up[i]
 				}
 			} else {
 				n = up[i]
@@ -366,51 +374,51 @@ func (n *Node) ItInsert(key int, value string) *Node {
 
 func (t *Tree) MaxMin(max bool) (int, string) {
 
-	n := t.root
+	n := t.Root
 	top := 0
 	var path []*Node
 
 	/* Build a path to work with */
 	if n != nil {
 		if max {
-			for n.right.level != 0 {
+			for n.Right.Level != 0 {
 				path = append(path, n)
-				n = n.right
+				n = n.Right
 				top++
 			}
 		}
 		if !max {
-			for n.left.level != 0 {
+			for n.Left.Level != 0 {
 				path = append(path, n)
-				n = n.left
+				n = n.Left
 				top++
 			}
 		}
 	}
 
-	return n.key, n.value
+	return n.Key, n.Value
 
 }
 
 var sl []int
 
 func Ascend(n *Node) {
-	if n.level == 0 {
+	if n.Level == 0 {
 		return
 	}
-	Ascend(n.left)
-	// fmt.Println(n.value)
-	sl = append(sl, n.key)
-	Ascend(n.right)
+	Ascend(n.Left)
+	// fmt.Println(n.Value)
+	sl = append(sl, n.Key)
+	Ascend(n.Right)
 }
 
 func Descend(n *Node) {
-	if n.level == 0 {
+	if n.Level == 0 {
 		return
 	}
-	Descend(n.right)
-	fmt.Println(n.key)
-	Descend(n.left)
+	Descend(n.Right)
+	fmt.Println(n.Key)
+	Descend(n.Left)
 }
 
 func InorderTraversal(n *Node) []string {
@@ -418,38 +426,77 @@ func InorderTraversal(n *Node) []string {
 
 	cur := n
 	for cur != &NilNode {
-		if cur.left == &NilNode {
-			res = append(res, cur.value)
+		if cur.Left == &NilNode {
+			res = append(res, cur.Value)
 			// if len(res) == l {
 			// 	return res
 			// }
-			cur = cur.right
+			cur = cur.Right
 			continue
 		}
 
-		pre := cur.left
-		for pre.right != &NilNode && pre.right != cur {
-			pre = pre.right
+		pre := cur.Left
+		for pre.Right != &NilNode && pre.Right != cur {
+			pre = pre.Right
 		}
 
-		if pre.right == &NilNode {
-			pre.right = cur
-			cur = cur.left
+		if pre.Right == &NilNode {
+			pre.Right = cur
+			cur = cur.Left
 		} else {
-			pre.right = &NilNode
-			res = append(res, cur.value)
+			pre.Right = &NilNode
+			res = append(res, cur.Value)
 			// if len(res) == l {
 			// 	return res
 			// }
-			cur = cur.right
+			cur = cur.Right
 		}
 	}
 	return res
 }
 
+var marker = "§"
+
+type serialData struct {
+	Value string
+	index int
+}
+
+func Serialize(n *Node) {
+	// If current node is NULL, store marker
+	if n == &NilNode {
+		fmt.Print(marker)
+		return
+	}
+
+	// Else, store current node and recur for its children
+
+	fmt.Print(serialData{n.Value, n.Key})
+	Serialize(n.Left)
+	Serialize(n.Right)
+}
+
+// func DeSerialize(t *Tree, s string)
+// {
+//     // Read next item from file. If theere are no more items or next
+//     // item is marker, then return
+//     int val;
+//     if !fscanf(fp, "%d ", &val) || val == MARKER {
+// 	   return
+// 	}
+
+//     // Else create node with this item and recur for children
+// 	root = newNode(val);
+
+//     DeSerialize(root->left, fp);
+//     DeSerialize(root->right, fp);
+// }
+
 func main() {
 
-	tree := &Tree{}
+	var tree Tree
+
+	// tree := new(Tree)
 	// tree.root = &NilNode
 	// fmt.Println(tree.root)
 	// tree.Insert(0, "0")
@@ -460,62 +507,24 @@ func main() {
 	// tree.Insert(5, "5")
 
 	letters := []string{"q", "w", "e", "r", "t", "y", "u", "i", "o", "p"}
-	timeStart := time.Now()
 	for i := 0; i < 10; i++ {
 		tree.Insert(i, letters[i])
 	}
-	fmt.Println("Tree Insertion done in:", time.Since(timeStart))
 
-	// timeStart = time.Now()
-	// str := tree.Find(4563252)
-	// fmt.Println("Tree Find:", str, "in: ", time.Since(timeStart))
+	Serialize(tree.Root)
 
-	// fmt.Println(tree.MaxMin(false))
-	// fmt.Println(tree.MaxMin(true))
-	// fmt.Println(Ascend(tree.root))
-	// Ascend(tree.root)
-	// Descend(tree.root)
+	var m = map[int]string{}
+	var size []string
+	size1000 := make([]string, 1000)
+	// size100000 := make([]string, 100000)
 
-	fmt.Println("1st", InorderTraversal(tree.root))
-
-	tree.Remove("q")
-
-	fmt.Println("After Removal", InorderTraversal(tree.root))
-
-	tree.Remove("w")
-
-	fmt.Println("After Removal", InorderTraversal(tree.root))
-
-	tree.Remove("e")
-
-	fmt.Println("After Removal", InorderTraversal(tree.root))
-
-	tree.Remove("r")
-
-	fmt.Println("After Removal", InorderTraversal(tree.root))
-
-	var slice [200000]string
-	var m = make(map[int]string)
-	var a string
-	// letters := []string{"a", "g", "e", "j", "h", "b", "d", "i", "f", "c"}
-	for i := 0; i < 200000; i++ {
-		city := randomdata.City()
-		slice[i] = city
-		m[i] = city
+	for i := 0; i < 1000; i++ {
+		num := randomdata.Address()
+		size = append(size, num)
+		size1000 = append(size1000, num)
+		// size100000 = append(size100000, num)
+		m[i] = num
 	}
-	timeStart = time.Now()
-	// for i := 0; i < 1; i++ {
-	// 	a = slice[i]
-	// }
-	a = slice[12345]
-	t := time.Since(timeStart)
-	fmt.Println(a, t)
-	timeStart = time.Now()
-	// _, ok := m[1]
-
-	a = m[12345]
-	t = time.Since(timeStart)
-	fmt.Println(a, t)
 
 }
 
@@ -629,16 +638,19 @@ func BenchmarkSliceLookup(b *testing.B) {
 	var slice []int
 	var a int
 	// letters := []string{"a", "g", "e", "j", "h", "b", "d", "i", "f", "c"}
-	for i := 0; i < 50000001; i++ {
+	// for i := 0; i < 50000001; i++ {
+	// 	slice = append(slice, i)
+	// }
+	// var sl []string
+
+	for i := 0; i < b.N; i++ {
 		slice = append(slice, i)
 	}
-	fmt.Println(slice[49999999])
-	// var sl []string
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if a > 50000000 {
-			i = 49999999
-		}
+		// if a > 50000000 {
+		// 	i = 49999999
+		// }
 		a = slice[i]
 	}
 
