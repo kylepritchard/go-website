@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
+	"log"
+	"os"
 	"time"
 
 	"github.com/gosimple/slug"
@@ -13,7 +16,7 @@ import (
 type Post struct {
 	Id         int //'Unique' Key?
 	Title      string
-	Content    string
+	Content    []byte
 	Slug       string //slugified version of the title - for routing
 	PostDate   time.Time
 	FeatureImg string
@@ -486,7 +489,40 @@ func NewStore() Store {
 	return make(Store)
 }
 
-func (s *Store) AddToStore(title string, value string, slugTree *Tree, dateTree *Tree) {
+func LoadStore() {
+	f, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE, 0755)
+	defer f.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fi, _ := f.Stat()
+	if err != nil {
+		// Could not obtain stat, handle error
+	}
+	if fi.Size() != 0 {
+		dec := gob.NewDecoder(f)
+		err = dec.Decode(&store)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
+func BuildIndexes() {
+	for _, v := range store {
+		slugTree.Insert(v.Id, v.Slug)
+		dateTree.Insert(v.Id, v.PostDate.String())
+	}
+}
+
+func OpenAndIndex(f string) {
+	file = f
+	LoadStore()
+	BuildIndexes()
+}
+
+func (s *Store) AddToStore(title string, value []byte, slugTree *Tree, dateTree *Tree) {
 
 	// Generate key
 	st := *s
@@ -499,6 +535,7 @@ func (s *Store) AddToStore(title string, value string, slugTree *Tree, dateTree 
 	//Slugify
 	slug := slug.MakeLang(title, "en")
 
+	// Build the post struct
 	post := Post{}
 	post.Id = key
 	post.Title = title
@@ -509,38 +546,80 @@ func (s *Store) AddToStore(title string, value string, slugTree *Tree, dateTree 
 	//Add to store
 	st[int(key)] = post
 
-	//Add to tree
+	//Add to trees
 	slugTree.Insert(key, slug)
 	dateTree.Insert(key, time.Now().String())
 
+	//Persist to disk
+	f, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE, 0755)
+	defer f.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+	enc := gob.NewEncoder(f)
+	err = enc.Encode(s)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 }
 
-func (store Store) GetRange(tree *Tree, reverse bool, skip, limit int) []Post {
+func GetRange(tree string, reverse bool, skip, limit int) []Post {
 	//lookup
 	var results []Post
-	var indexes = tree.InOrderTraversal(reverse, skip, limit)
+	var indexes []int
+	switch {
+	case tree == "date":
+		indexes = dateTree.InOrderTraversal(reverse, skip, limit)
+	case tree == "slug":
+		indexes = slugTree.InOrderTraversal(reverse, skip, limit)
+	}
+	// var indexes = tree.InOrderTraversal(reverse, skip, limit)
 	for _, v := range indexes {
 		results = append(results, store[v])
 	}
 	return results
 }
 
+//Global variables
+var file string
+var store = make(Store)
+var slugTree = NewTree()
+var dateTree = NewTree()
+
 func main() {
 
+	// file = "db.db"
+	// LoadStore()
+	// BuildIndexes()
+	// file = "database.db"
+	OpenAndIndex("database.db")
+	// store.AddToStore("New title", "bla bla bla", slugTree, dateTree)
+
+	// fmt.Println("Store:", store)
+
 	//In mem-Trees
-	slugTree := NewTree()
-	dateTree := NewTree()
+	// slugTree := NewTree()
+	// dateTree := NewTree()
 
-	store := NewStore()
+	//Initiate datastore
+	// store := NewStore()
 
-	store.AddToStore("charlie", "charlie", slugTree, dateTree)
-	store.AddToStore("echo", "echo", slugTree, dateTree)
-	store.AddToStore("alpha", "alpha", slugTree, dateTree)
-	store.AddToStore("delta", "delta", slugTree, dateTree)
-	store.AddToStore("bravo", "bravo", slugTree, dateTree)
+	// markdown := []byte(`
+	// # New Features!
 
-	results := store.GetRange(slugTree, false, 0, 3)
-	fmt.Println(results)
+	// 	- Import a HTML file and watch it magically convert to Markdown
+	// 	- Drag and drop images (requires your Dropbox account be linked)
+	// `)
+	// formatted := blackfriday.MarkdownCommon(markdown)
+
+	// store.AddToStore("Title", []byte(formatted), slugTree, dateTree)
+
+	results := GetRange("date", false, 0, 0)
+	for _, v := range results {
+		fmt.Println(string(v.Content))
+	}
+	// fmt.Println(results)
 
 	// letters := []string{"q", "w", "e", "r", "t", "y", "u", "i", "o", "p"}
 	// for i := 0; i < 10; i++ {
@@ -551,17 +630,6 @@ func main() {
 
 	// fmt.Println(slugTree.InOrderTraversal(false, 0, 0))
 	// fmt.Println(slugTree.InOrderTraversal(true, 0, 0))
-
-	// 	markdown := []byte(`
-	// # New Features!
-
-	// 	- Import a HTML file and watch it magically convert to Markdown
-	// 	- Drag and drop images (requires your Dropbox account be linked)
-	// `)
-
-	// 	formatted := blackfriday.MarkdownCommon(markdown)
-
-	// 	fmt.Println(string(formatted))
 
 	// Serialize(tree.Root)
 
