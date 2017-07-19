@@ -7,6 +7,9 @@
 
 <body>
     <h1>Template served by Go</h1>
+    {{range .}}
+    <p>{{.Title}}</p>
+    {{.Content}} {{end}}
 </body>
 
 </html>

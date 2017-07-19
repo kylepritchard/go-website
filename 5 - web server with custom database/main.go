@@ -5,20 +5,30 @@ import (
 	"html/template"
 	"net/http"
 	_ "os"
+	"time"
 
-	database "github.com/kylepritchard/database"
+	database "./database"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/urfave/negroni"
 )
 
+type Post struct {
+	Id         int //'Unique' Key?
+	Title      string
+	Content    []byte
+	Slug       string //slugified version of the title - for routing
+	PostDate   time.Time
+	FeatureImg string
+}
+
 func main() {
 
 	database.OpenAndIndex("database.db")
 
-	database.AddToStore("Title", []byte("Hello"))
-
-	fmt.Println(database.GetRange("date", false, 0, 0))
+	// for i := 0; i < 100; i++ {
+	// 	database.AddToStore(randomdata.City(), randomdata.Address())
+	// }
 
 	//var port = "8000"
 	mux := httprouter.New()
@@ -34,5 +44,6 @@ func main() {
 // Homepage - '/'
 func index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	tpl := template.Must(template.ParseFiles("templates/index.gohtml"))
-	tpl.Execute(w, nil)
+	data := database.GetRange("date", true, 0, 0)
+	tpl.Execute(w, data)
 }
