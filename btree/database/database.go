@@ -1,4 +1,4 @@
-package main
+package database
 
 import (
 	"encoding/gob"
@@ -522,7 +522,7 @@ func OpenAndIndex(f string) {
 	BuildIndexes()
 }
 
-func (s *Store) AddToStore(title string, value []byte, slugTree *Tree, dateTree *Tree) {
+func AddToStore(title string, value []byte, slugTree *Tree, dateTree *Tree) {
 
 	// Generate key
 	st := *s
@@ -587,63 +587,63 @@ var store = make(Store)
 var slugTree = NewTree()
 var dateTree = NewTree()
 
-func main() {
+// func main() {
 
-	// file = "db.db"
-	// LoadStore()
-	// BuildIndexes()
-	// file = "database.db"
-	OpenAndIndex("database.db")
-	// store.AddToStore("New title", "bla bla bla", slugTree, dateTree)
+// 	// file = "db.db"
+// 	// LoadStore()
+// 	// BuildIndexes()
+// 	// file = "database.db"
+// 	OpenAndIndex("database.db")
+// 	// store.AddToStore("New title", "bla bla bla", slugTree, dateTree)
 
-	// fmt.Println("Store:", store)
+// 	// fmt.Println("Store:", store)
 
-	//In mem-Trees
-	// slugTree := NewTree()
-	// dateTree := NewTree()
+// 	//In mem-Trees
+// 	// slugTree := NewTree()
+// 	// dateTree := NewTree()
 
-	//Initiate datastore
-	// store := NewStore()
+// 	//Initiate datastore
+// 	// store := NewStore()
 
-	// markdown := []byte(`
-	// # New Features!
+// 	// markdown := []byte(`
+// 	// # New Features!
 
-	// 	- Import a HTML file and watch it magically convert to Markdown
-	// 	- Drag and drop images (requires your Dropbox account be linked)
-	// `)
-	// formatted := blackfriday.MarkdownCommon(markdown)
+// 	// 	- Import a HTML file and watch it magically convert to Markdown
+// 	// 	- Drag and drop images (requires your Dropbox account be linked)
+// 	// `)
+// 	// formatted := blackfriday.MarkdownCommon(markdown)
 
-	// store.AddToStore("Title", []byte(formatted), slugTree, dateTree)
+// 	// store.AddToStore("Title", []byte(formatted), slugTree, dateTree)
 
-	results := GetRange("date", false, 0, 0)
-	for _, v := range results {
-		fmt.Println(string(v.Content))
-	}
-	// fmt.Println(results)
+// 	results := GetRange("date", false, 0, 0)
+// 	for _, v := range results {
+// 		fmt.Println(string(v.Content))
+// 	}
+// 	// fmt.Println(results)
 
-	// letters := []string{"q", "w", "e", "r", "t", "y", "u", "i", "o", "p"}
-	// for i := 0; i < 10; i++ {
-	// 	tree.Insert(i, letters[i])
-	// }
-	// fmt.Println(dateTree.InOrderTraversal(false, 0, 0))
-	// fmt.Println(dateTree.InOrderTraversal(true, 0, 0))
+// 	// letters := []string{"q", "w", "e", "r", "t", "y", "u", "i", "o", "p"}
+// 	// for i := 0; i < 10; i++ {
+// 	// 	tree.Insert(i, letters[i])
+// 	// }
+// 	// fmt.Println(dateTree.InOrderTraversal(false, 0, 0))
+// 	// fmt.Println(dateTree.InOrderTraversal(true, 0, 0))
 
-	// fmt.Println(slugTree.InOrderTraversal(false, 0, 0))
-	// fmt.Println(slugTree.InOrderTraversal(true, 0, 0))
+// 	// fmt.Println(slugTree.InOrderTraversal(false, 0, 0))
+// 	// fmt.Println(slugTree.InOrderTraversal(true, 0, 0))
 
-	// Serialize(tree.Root)
+// 	// Serialize(tree.Root)
 
-	// var m = map[int]string{}
-	// var size []string
-	// size1000 := make([]string, 1000)
-	// // size100000 := make([]string, 100000)
+// 	// var m = map[int]string{}
+// 	// var size []string
+// 	// size1000 := make([]string, 1000)
+// 	// // size100000 := make([]string, 100000)
 
-	// for i := 0; i < 1000; i++ {
-	// 	num := randomdata.Address()
-	// 	size = append(size, num)
-	// 	size1000 = append(size1000, num)
-	// 	// size100000 = append(size100000, num)
-	// 	m[i] = num
-	// }
+// 	// for i := 0; i < 1000; i++ {
+// 	// 	num := randomdata.Address()
+// 	// 	size = append(size, num)
+// 	// 	size1000 = append(size1000, num)
+// 	// 	// size100000 = append(size100000, num)
+// 	// 	m[i] = num
+// 	// }
 
-}
+// }
