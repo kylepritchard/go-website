@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"time"
+
+	"github.com/gosimple/slug"
 )
 
 // Store is the main slice containing all the Posts
-var Store []Post
+// var Store []Post
 
 type Post struct {
 	Id         int //'Unique' Key?
@@ -362,18 +364,24 @@ func (tree *Tree) Find(key int) string {
 // Traversing
 
 // TREE TRAVERSAL
-func (tree *Tree) InOrderTraversal() []string {
-	t := inorderTraversal(tree.Root)
+// Method on tree, returns a slice of keys which can be searched in store map
+// Arguments
+// reverse - bool, ascending = false, descending = true
+// skip - int, number of items to skip from start of traversal
+// limit - int, number of items to return from traversal
+
+func (tree *Tree) InOrderTraversal(reverse bool, skip int, limit int) []int {
+	t := inorderTraversal(tree.Root, reverse, skip, limit)
 	return t
 }
 
-func inorderTraversal(n *Node) []string {
-	var res []string
+func inorderTraversal(n *Node, reverse bool, skip int, limit int) []int {
+	var res []int
 
 	cur := n
 	for cur != nil {
 		if cur.Left == nil {
-			res = append(res, cur.Value)
+			res = append(res, cur.Key)
 			// if len(res) == l {
 			// 	return res
 			// }
@@ -391,13 +399,39 @@ func inorderTraversal(n *Node) []string {
 			cur = cur.Left
 		} else {
 			pre.Right = nil
-			res = append(res, cur.Value)
+			res = append(res, cur.Key)
 			// if len(res) == l {
 			// 	return res
 			// }
 			cur = cur.Right
 		}
 	}
+
+	if reverse {
+		var reversed []int
+		for i := len(res) - 1; i >= 0; i-- {
+			reversed = append(reversed, res[i])
+		}
+		res = reversed
+	}
+
+	if skip != 0 {
+		var split []int
+		split = res[skip:]
+		res = split
+		if limit != 0 {
+			// var split []int
+			split = res[:limit]
+			res = split
+		}
+	}
+
+	if limit != 0 {
+		var split []int
+		split = res[:limit]
+		res = split
+	}
+
 	return res
 }
 
@@ -444,21 +478,79 @@ func serialize(n *Node) {
 //     DeSerialize(root->right, fp);
 // }
 
+//Database Map
+
+type Store map[int]Post
+
+func NewStore() Store {
+	return make(Store)
+}
+
+func (s *Store) AddToStore(title string, value string, slugTree *Tree, dateTree *Tree) {
+
+	// Generate key
+	st := *s
+	key := len(st)
+	key++
+
+	// Date & Time
+	t := time.Now()
+
+	//Slugify
+	slug := slug.MakeLang(title, "en")
+
+	post := Post{}
+	post.Id = key
+	post.Title = title
+	post.Slug = slug
+	post.Content = value
+	post.PostDate = t
+
+	//Add to store
+	st[int(key)] = post
+
+	//Add to tree
+	slugTree.Insert(key, slug)
+	dateTree.Insert(key, time.Now().String())
+
+}
+
+func (store Store) GetRange(tree *Tree, reverse bool, skip, limit int) []Post {
+	//lookup
+	var results []Post
+	var indexes = tree.InOrderTraversal(reverse, skip, limit)
+	for _, v := range indexes {
+		results = append(results, store[v])
+	}
+	return results
+}
+
 func main() {
 
-	// var tree Tree
+	//In mem-Trees
+	slugTree := NewTree()
+	dateTree := NewTree()
 
-	// // tree := new(Tree)
-	// tree.Root = &NilNode
+	store := NewStore()
 
-	tree := NewTree()
+	store.AddToStore("charlie", "charlie", slugTree, dateTree)
+	store.AddToStore("echo", "echo", slugTree, dateTree)
+	store.AddToStore("alpha", "alpha", slugTree, dateTree)
+	store.AddToStore("delta", "delta", slugTree, dateTree)
+	store.AddToStore("bravo", "bravo", slugTree, dateTree)
 
-	letters := []string{"q", "w", "e", "r", "t", "y", "u", "i", "o", "p"}
-	for i := 0; i < 10; i++ {
-		tree.Insert(i, letters[i])
-	}
+	results := store.GetRange(slugTree, false, 0, 3)
+	fmt.Println(results)
 
-	fmt.Println(tree.InOrderTraversal())
+	// letters := []string{"q", "w", "e", "r", "t", "y", "u", "i", "o", "p"}
+	// for i := 0; i < 10; i++ {
+	// 	tree.Insert(i, letters[i])
+	// }
+	// fmt.Println(dateTree.InOrderTraversal(false, 0, 0))
+	// fmt.Println(dateTree.InOrderTraversal(true, 0, 0))
+
+	// fmt.Println(slugTree.InOrderTraversal(false, 0, 0))
+	// fmt.Println(slugTree.InOrderTraversal(true, 0, 0))
 
 	// 	markdown := []byte(`
 	// # New Features!
