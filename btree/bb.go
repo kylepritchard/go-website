@@ -5,11 +5,16 @@ import (
 	"time"
 )
 
+// Store is the main slice containing all the Posts
+var Store []Post
+
 type Post struct {
-	Id       int
-	Title    string
-	Content  string
-	PostDate time.Time
+	Id         int //'Unique' Key?
+	Title      string
+	Content    string
+	Slug       string //slugified version of the title - for routing
+	PostDate   time.Time
+	FeatureImg string
 }
 
 type Node struct {
@@ -20,10 +25,26 @@ type Node struct {
 	Value string
 }
 
-var NilNode Node
-
 type Tree struct {
 	Root *Node
+}
+
+var NilNode Node
+
+func makeNilNode() *Node {
+	// Initialise Nil Node
+	NilNode.Level = 0
+	NilNode.Left = nil
+	NilNode.Right = nil
+	NilNode.Key = 0
+	NilNode.Value = ""
+	return &NilNode
+}
+
+func NewTree() *Tree {
+	t := new(Tree)
+	t.Root = &NilNode
+	return t
 }
 
 // NewNode creates a new node in the tree containing the key/value. Left and Right pointers are nil
@@ -62,6 +83,7 @@ func Skew(n *Node) *Node {
 //     return node;
 // }
 
+// Split function
 func Split(n *Node) *Node {
 	// time.Sleep(time.Second * 2)
 	if n.Right != nil && n.Right.Right != nil {
@@ -85,6 +107,7 @@ func Split(n *Node) *Node {
 	return n
 }
 
+// Insert new item to the tree
 func (tree *Tree) Insert(key int, value string) {
 	tree.Root = tree.Root.insert(key, value)
 }
@@ -397,6 +420,7 @@ func serialize(n *Node) {
 		fmt.Print(marker)
 		return
 	}
+
 	// Else, store current node and recur for its children
 
 	fmt.Print(serialData{n.Value, n.Key})
@@ -420,21 +444,14 @@ func serialize(n *Node) {
 //     DeSerialize(root->right, fp);
 // }
 
-func init() {
-	// Initialise Nil Node
-	NilNode.Level = 0
-	NilNode.Left = nil
-	NilNode.Right = nil
-	NilNode.Key = 0
-	NilNode.Value = ""
-}
-
 func main() {
 
-	var tree Tree
+	// var tree Tree
 
-	// tree := new(Tree)
-	tree.Root = &NilNode
+	// // tree := new(Tree)
+	// tree.Root = &NilNode
+
+	tree := NewTree()
 
 	letters := []string{"q", "w", "e", "r", "t", "y", "u", "i", "o", "p"}
 	for i := 0; i < 10; i++ {
@@ -442,6 +459,17 @@ func main() {
 	}
 
 	fmt.Println(tree.InOrderTraversal())
+
+	// 	markdown := []byte(`
+	// # New Features!
+
+	// 	- Import a HTML file and watch it magically convert to Markdown
+	// 	- Drag and drop images (requires your Dropbox account be linked)
+	// `)
+
+	// 	formatted := blackfriday.MarkdownCommon(markdown)
+
+	// 	fmt.Println(string(formatted))
 
 	// Serialize(tree.Root)
 
