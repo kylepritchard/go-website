@@ -3,6 +3,7 @@ package database
 import (
 	"encoding/gob"
 	"fmt"
+	"html/template"
 	"log"
 	"os"
 	"time"
@@ -16,7 +17,7 @@ import (
 type Post struct {
 	Id         int //'Unique' Key?
 	Title      string
-	Content    string
+	Content    template.HTML
 	Slug       string //slugified version of the title - for routing
 	PostDate   time.Time
 	FeatureImg string
@@ -539,7 +540,7 @@ func AddToStore(title string, value string) {
 	post.Id = key
 	post.Title = title
 	post.Slug = slug
-	post.Content = value
+	post.Content = template.HTML(value)
 	post.PostDate = t
 
 	//Add to store
