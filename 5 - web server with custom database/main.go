@@ -49,20 +49,15 @@ func main() {
 	n.UseHandler(mux)
 
 	fmt.Println("Starting server listening on port 8000")
-	// http.ListenAndServe(":8000", n)
-	var m letsencrypt.Manager
-	if err := m.CacheFile("letsencrypt.cache"); err != nil {
-		log.Fatal(err)
-	}
+	http.ListenAndServe(":8000", n)
 
-	srv := &http.Server{
-		Addr: ":https",
-		TLSConfig: &tls.Config{
-			GetCertificate: m.GetCertificate,
-		},
-	}
-	srv.ListenAndServeTLS("", "")
-	log.Fatal(m.Serve())
+	// var m letsencrypt.Manager
+	// if err := m.CacheFile("letsencrypt.cache"); err != nil {
+	// 	log.Fatal(err)
+	// }
+	// log.Fatal(m.Serve())
+}
+
 }
 
 // Homepage
