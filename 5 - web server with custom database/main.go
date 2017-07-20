@@ -1,10 +1,14 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	_ "os"
+
+	"rsc.io/letsencrypt"
 
 	database "./database"
 
@@ -45,7 +49,20 @@ func main() {
 	n.UseHandler(mux)
 
 	fmt.Println("Starting server listening on port 8000")
-	http.ListenAndServe(":8000", n)
+	// http.ListenAndServe(":8000", n)
+	var m letsencrypt.Manager
+	if err := m.CacheFile("letsencrypt.cache"); err != nil {
+		log.Fatal(err)
+	}
+
+	srv := &http.Server{
+		Addr: ":https",
+		TLSConfig: &tls.Config{
+			GetCertificate: m.GetCertificate,
+		},
+	}
+	srv.ListenAndServeTLS("", "")
+	log.Fatal(m.Serve())
 }
 
 // Homepage
