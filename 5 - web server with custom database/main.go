@@ -5,7 +5,6 @@ import (
 	"html/template"
 	"net/http"
 	_ "os"
-	"time"
 
 	database "./database"
 
@@ -14,26 +13,31 @@ import (
 	"github.com/urfave/negroni"
 )
 
-type Post struct {
-	Id         int //'Unique' Key?
-	Title      string
-	Content    template.HTML
-	Slug       string //slugified version of the title - for routing
-	PostDate   time.Time
-	FeatureImg string
-}
+// type Post struct {
+// 	Id         int //'Unique' Key?
+// 	Title      string
+// 	Content    template.HTML
+// 	Slug       string //slugified version of the title - for routing
+// 	PostDate   time.Time
+// 	FeatureImg string
+// }
 
 func main() {
 
 	database.OpenAndIndex("database.db")
 
-	// for i := 0; i < 100; i++ {
-	// 	database.AddToStore(randomdata.City(), randomdata.Address())
-	// }
-
-	//var port = "8000"
 	mux := httprouter.New()
+
+	//Routing
+	////////////////////////////////////
+
+	//Homepage
 	mux.GET("/", index)
+
+	// Post
+	mux.GET("/post/:slug", post)
+
+	// Add new post - GET and POST
 	mux.GET("/newpost", newPost)
 	mux.POST("/newpost", postToDB)
 
@@ -44,29 +48,32 @@ func main() {
 	http.ListenAndServe(":8000", n)
 }
 
-// Homepage - '/'
+// Homepage
 func index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	tpl := template.Must(template.ParseFiles("templates/index.gohtml"))
 	data := database.GetRange("date", true, 0, 0)
-	fmt.Printf("%T", data[0].Content)
 	tpl.Execute(w, data)
 }
 
-// Homepage - '/newpost'
+// Post
+func post(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	tpl := template.Must(template.ParseFiles("templates/post.gohtml"))
+	slug := p.ByName("slug")
+	data := database.GetOne("slug", slug)
+	tpl.Execute(w, data)
+}
+
+// Add Post Page - '/newpost'
 func newPost(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	tpl := template.Must(template.ParseFiles("templates/form.gohtml"))
 	tpl.Execute(w, nil)
 }
 
-// Homepage - '/newpost'
-func postToDB(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-
-	// r.ParseForm()
+// Submit post and save to DB - '/newpost'
+func postToDB(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	markdown := r.PostFormValue("markdown")
-	// stringSlice := []string{"hello", "bye"}
-
 	html := blackfriday.MarkdownCommon([]byte(markdown))
 	str := string(html)
 	database.AddToStore(r.PostFormValue("title"), str)
-	http.Redirect(w, r, "/", 301)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

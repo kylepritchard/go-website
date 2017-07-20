@@ -347,22 +347,22 @@ func remove(root *Node, value string) *Node {
 
 // Tree Find
 
-func (tree *Tree) Find(key int) string {
+func (tree *Tree) Find(value string) int {
 
 	n := tree.Root
 
-	for n.Level != 0 {
-		if n.Key == key {
-			return n.Value
+	for n != nil {
+		if n.Value == value {
+			return n.Key
 		}
-		if n.Key < key {
+		if n.Value < value {
 			n = n.Right
 		} else {
 			n = n.Left
 		}
 	}
 
-	return ""
+	return 0
 }
 
 // Traversing
@@ -562,6 +562,18 @@ func AddToStore(title string, value string) {
 		log.Fatal(err)
 	}
 
+}
+
+func GetOne(tree, lookup string) Post {
+	var index int
+	switch {
+	case tree == "slug":
+		index = slugTree.Find(lookup)
+	case tree == "date":
+		index = dateTree.Find(lookup)
+	}
+
+	return store[index]
 }
 
 func GetRange(tree string, reverse bool, skip, limit int) []Post {
