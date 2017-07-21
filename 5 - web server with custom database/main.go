@@ -1,14 +1,10 @@
 package main
 
 import (
-	"crypto/tls"
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	_ "os"
-
-	"rsc.io/letsencrypt"
 
 	database "./database"
 
@@ -48,16 +44,19 @@ func main() {
 	n := negroni.Classic() // Log & File Server
 	n.UseHandler(mux)
 
-	fmt.Println("Starting server listening on port 8000")
 	http.ListenAndServe(":8000", n)
 
-	// var m letsencrypt.Manager
-	// if err := m.CacheFile("letsencrypt.cache"); err != nil {
-	// 	log.Fatal(err)
-	// }
-	// log.Fatal(m.Serve())
+	// log.Fatal(http.Serve(autocert.NewListener("kylepritchard.co.uk"), n))
+	fmt.Println("Starting server listening on port 8000")
+
+	//      http.ListenAndServe(":80", http.HandlerFunc(redirectToHttps))
+	//      http.ListenAndServeTLS(":443", "etc/letsencrypt/live/kylepritchard.co.uk/fullchain.pem", "etc/letsencrypt/live/kylepritchard.co.uk/privkey.pem", n)
+	//      http.ListenAndServe(":80", http.HandlerFunc(redirectToHttps))
 }
 
+func redirectToHttps(w http.ResponseWriter, r *http.Request) {
+	// Redirect the incoming HTTP request. Note that "127.0.0.1:8081" will only work if you are accessing the server from your local machine.
+	http.Redirect(w, r, "https://kylepritchard.co.uk"+r.RequestURI, http.StatusMovedPermanently)
 }
 
 // Homepage
