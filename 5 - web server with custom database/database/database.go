@@ -200,7 +200,7 @@ func (tree *Tree) Remove(value string) {
 
 // Recursive Removal
 // func remove(n *Node, value string) *Node {
-// 	fmt.Println("remove", value)
+// 	fmt.Println("remove")
 // 	var heir *Node
 // 	if n != nil {
 // 		if n.Value == value {
@@ -318,16 +318,18 @@ func remove(root *Node, value string) *Node {
 				}
 			}
 
-			if up[i].Left.Level < up[i].Level-1 || up[i].Right.Level < up[i].Level-1 {
-				if up[i].Right.Level > up[i].Level-1 {
-					up[i].Right.Level = up[i].Level
-				}
+			if up[i].Left != nil || up[i].Right != nil {
+				if up[i].Left.Level < up[i].Level-1 || up[i].Right.Level < up[i].Level-1 {
+					if up[i].Right.Level > up[i].Level-1 {
+						up[i].Right.Level = up[i].Level
+					}
 
-				up[i] = Skew(up[i])
-				up[i].Right = Skew(up[i].Right)
-				up[i].Right.Right = Skew(up[i].Right.Right)
-				up[i] = Split(up[i])
-				up[i].Right = Split(up[i].Right)
+					up[i] = Skew(up[i])
+					up[i].Right = Skew(up[i].Right)
+					up[i].Right.Right = Skew(up[i].Right.Right)
+					up[i] = Split(up[i])
+					up[i].Right = Split(up[i].Right)
+				}
 			}
 
 			if i != 0 {
@@ -347,7 +349,7 @@ func remove(root *Node, value string) *Node {
 
 // Tree Find
 
-func (tree *Tree) Find(value string) int {
+func (tree *Tree) FindKey(value string) int {
 
 	n := tree.Root
 
@@ -363,6 +365,24 @@ func (tree *Tree) Find(value string) int {
 	}
 
 	return 0
+}
+
+func (tree *Tree) FindValue(key int) string {
+
+	n := tree.Root
+
+	for n != nil {
+		if n.Key == key {
+			return n.Value
+		}
+		if n.Key < key {
+			n = n.Right
+		} else {
+			n = n.Left
+		}
+	}
+
+	return "not found"
 }
 
 // Traversing
@@ -568,9 +588,9 @@ func GetOne(tree, lookup string) Post {
 	var index int
 	switch {
 	case tree == "slug":
-		index = slugTree.Find(lookup)
+		index = slugTree.FindKey(lookup)
 	case tree == "date":
-		index = dateTree.Find(lookup)
+		index = dateTree.FindKey(lookup)
 	}
 
 	return store[index]
@@ -591,6 +611,26 @@ func GetRange(tree string, reverse bool, skip, limit int) []Post {
 		results = append(results, store[v])
 	}
 	return results
+}
+
+func Remove(value string) {
+	index := slugTree.FindKey(value)
+	d := dateTree.FindValue(index)
+	slugTree.Remove(d)
+
+	delete(store, index)
+
+	//Persist to disk
+	f, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE, 0755)
+	defer f.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+	enc := gob.NewEncoder(f)
+	err = enc.Encode(store)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 //Global variables
