@@ -41,6 +41,9 @@ func main() {
 	mux.GET("/newpost", newPost)
 	mux.POST("/newpost", postToDB)
 
+	//Remove post
+	mux.GET("/delete/:slug", removeFromDB)
+
 	n := negroni.Classic() // Log & File Server
 	n.UseHandler(mux)
 
@@ -86,5 +89,12 @@ func postToDB(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	html := blackfriday.MarkdownCommon([]byte(markdown))
 	str := string(html)
 	database.AddToStore(r.PostFormValue("title"), str)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// Remove Post - '/remove/:slug'
+func removeFromDB(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	slug := p.ByName("slug")
+	database.Remove(slug)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
