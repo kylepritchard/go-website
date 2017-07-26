@@ -1,0 +1,17 @@
+<html>
+
+<head>
+    <link rel="icon" type="image/png" sizes="120x120" href="../favicon.png">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+    <h1>Template served by Go</h1>
+    {{range .}}
+    <a href="post/{{.Slug}}">
+        <h2>{{.Title}}</h2>
+    </a>
+    {{end}}
+</body>
+
+</html>

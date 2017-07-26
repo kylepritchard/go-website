@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
-	_ "os"
 
 	database "./database"
 
@@ -13,19 +12,13 @@ import (
 	"github.com/urfave/negroni"
 )
 
-// type Post struct {
-// 	Id         int //'Unique' Key?
-// 	Title      string
-// 	Content    template.HTML
-// 	Slug       string //slugified version of the title - for routing
-// 	PostDate   time.Time
-// 	FeatureImg string
-// }
-
 func main() {
 
+	//Open Database
+	//Builds In Memory Store and AA Trees
 	database.OpenAndIndex("database.db")
 
+	//
 	mux := httprouter.New()
 
 	//Routing
